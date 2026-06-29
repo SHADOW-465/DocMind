@@ -3,6 +3,8 @@ import { useRef, useState } from "react";
 import { UploadZone } from "@/components/UploadZone";
 import { PdfCanvas } from "@/components/PdfCanvas";
 import { SummaryPanel } from "@/components/SummaryPanel";
+import { BeamOverlay } from "@/components/BeamOverlay";
+import { useActiveEls } from "@/lib/useBeams";
 import { summarize } from "@/lib/api";
 import type { SummarizeResponse, SummaryLength } from "@/lib/types";
 
@@ -16,6 +18,8 @@ export default function Home() {
 
   const cardRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const highlightRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const { card, hi } = useActiveEls(activeId, cardRefs, highlightRefs);
 
   async function run(f: File) {
     setFile(f); setLoading(true); setError(null);
@@ -43,7 +47,16 @@ export default function Home() {
           registerHighlight={(id, el) => { if (el) highlightRefs.current.set(id, el); else highlightRefs.current.delete(id); }}
         />
       )}
-      <SummaryPanel points={result.points} activeId={activeId} onActivate={setActiveId} cardRefs={cardRefs} />
+      <SummaryPanel
+        points={result.points}
+        activeId={activeId}
+        onActivate={(id) => {
+          setActiveId(id);
+          requestAnimationFrame(() => highlightRefs.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+        }}
+        cardRefs={cardRefs}
+      />
+      <BeamOverlay activeId={activeId} cardEl={card} highlightEl={hi} />
     </main>
   );
 }
