@@ -26,6 +26,7 @@ export function SummaryPanel({ result, activeId, onActivate, cardRefs, length, o
           Download JSON
         </button>
       </div>
+      {result.points.length === 0 && <p className="text-sm text-[var(--muted)] px-1">No summary points.</p>}
       {result.themes.map((t) => (
         <ThemeGroup key={t.id} theme={t} points={result.points} activeId={activeId}
           onActivate={onActivate} cardRefs={cardRefs} />

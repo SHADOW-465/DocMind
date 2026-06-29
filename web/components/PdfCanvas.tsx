@@ -45,7 +45,7 @@ export function PdfCanvas({ file, pages, points, activeId, registerHighlight, re
                     return (
                       <div
                         key={`${p.id}-${bi}`}
-                        ref={(el) => registerHighlight(p.id, el)}
+                        ref={(el) => { if (bi === 0) registerHighlight(p.id, el); }}
                         data-highlight-for={p.id}
                         className={`absolute rounded-sm transition ${
                           activeId === p.id ? "bg-indigo-300/50 ring-1 ring-[var(--accent)]" : "bg-transparent"
