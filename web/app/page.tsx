@@ -14,7 +14,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [length] = useState<SummaryLength>("medium");
+  const [length, setLength] = useState<SummaryLength>("medium");
 
   const cardRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const highlightRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -26,6 +26,21 @@ export default function Home() {
     try { setResult(await summarize(f, length)); }
     catch (e) { setError((e as Error).message); }
     finally { setLoading(false); }
+  }
+
+  function downloadJson() {
+    if (!result) return;
+    const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${result.filename.replace(/\.pdf$/i, "")}-summary.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  async function changeLength(l: SummaryLength) {
+    setLength(l);
+    if (file) { setLoading(true); try { setResult(await summarize(file, l)); } catch (e) { setError((e as Error).message); } finally { setLoading(false); } }
   }
 
   if (!result) {
@@ -47,15 +62,12 @@ export default function Home() {
           registerHighlight={(id, el) => { if (el) highlightRefs.current.set(id, el); else highlightRefs.current.delete(id); }}
         />
       )}
-      <SummaryPanel
-        points={result.points}
-        activeId={activeId}
+      <SummaryPanel result={result} activeId={activeId}
         onActivate={(id) => {
           setActiveId(id);
           requestAnimationFrame(() => highlightRefs.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "center" }));
         }}
-        cardRefs={cardRefs}
-      />
+        cardRefs={cardRefs} length={length} onLengthChange={changeLength} onDownload={downloadJson} />
       <BeamOverlay activeId={activeId} cardEl={card} highlightEl={hi} />
     </main>
   );
