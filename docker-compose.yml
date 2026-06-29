@@ -1,0 +1,14 @@
+services:
+  ml:
+    build: ./ml
+    ports: ["8000:8000"]
+    environment:
+      - HF_HOME=/app/.hf_cache
+    volumes:
+      - ./ml/.hf_cache:/app/.hf_cache
+  web:
+    build: ./web
+    ports: ["3000:3000"]
+    environment:
+      - NEXT_PUBLIC_ML_URL=http://localhost:8000
+    depends_on: [ml]
