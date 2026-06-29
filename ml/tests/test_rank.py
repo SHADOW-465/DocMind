@@ -27,3 +27,16 @@ def test_rank_top_n_larger_than_corpus_returns_all(sample_pdf_bytes):
 
 def test_rank_empty_returns_empty():
     assert rank([], top_n=5) == []
+
+
+def test_rank_all_stopwords_does_not_crash():
+    from lucent_ml.pipeline.segment import Sentence
+    stop = ["the and of to a", "is in on at it", "for with as by an"]
+    sents = [Sentence(text=t, page=1, char_start=0, char_end=len(t),
+                      word_bboxes=[(0.0, 0.0, 1.0, 1.0)]) for t in stop]
+    ranked = rank(sents, top_n=2)
+    assert len(ranked) == 2
+    assert all(0.0 <= r.confidence <= 1.0 for r in ranked)
+    # anchors are still real input sentences
+    src = {s.text for s in sents}
+    assert all(r.sentence.text in src for r in ranked)

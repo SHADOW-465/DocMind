@@ -1,5 +1,11 @@
 """Stage 6 — assemble final response. This file starts with the bbox merge
 helper; the response builder is wired in the /summarize task."""
+import uuid
+
+from .reword import RewordedPoint
+from .group import ThemeAssignment, group_points
+from ..models import SummarizeResponse, SummaryPoint, Theme, PageDim
+from .parse import PageInfo
 
 Bbox = tuple[float, float, float, float]
 
@@ -35,14 +41,6 @@ def merge_line_bboxes(boxes: list[Bbox], y_tol: float = 4.0) -> list[Bbox]:
         y1 = max(b[3] for b in line)
         merged.append((x0, y0, x1, y1))
     return merged
-
-
-import uuid
-
-from .reword import RewordedPoint
-from .group import ThemeAssignment, group_points
-from ..models import SummarizeResponse, SummaryPoint, Theme, PageDim
-from .parse import PageInfo
 
 
 def build_response(

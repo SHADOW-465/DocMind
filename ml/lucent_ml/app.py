@@ -1,7 +1,7 @@
 """Lucent ML service — FastAPI app."""
 import time
 
-from fastapi import FastAPI, UploadFile, File, Form, Depends
+from fastapi import FastAPI, UploadFile, File, Form, Depends, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,6 +22,14 @@ app.add_middleware(
 )
 
 _MODELS_READY = True
+
+
+@app.exception_handler(Exception)
+async def _internal_error_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content=ErrorResponse(error="internal", message=str(exc)).model_dump(),
+    )
 
 
 # Dependency-injection seams (overridden in tests with fakes).

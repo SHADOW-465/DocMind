@@ -64,6 +64,25 @@ def test_summarize_rejects_non_pdf(client):
     assert r.json()["error"]
 
 
+def test_summarize_internal_error_returns_500(sample_pdf_bytes):
+    from lucent_ml.app import app as _app, get_reword_provider, get_embedder
+
+    class RaisingEmbedder:
+        def encode(self, texts):
+            raise RuntimeError("boom")
+
+    _app.dependency_overrides[get_reword_provider] = lambda: FakeProvider()
+    _app.dependency_overrides[get_embedder] = lambda: RaisingEmbedder()
+    try:
+        c = TestClient(_app, raise_server_exceptions=False)
+        files = {"file": ("sample-2page.pdf", io.BytesIO(sample_pdf_bytes), "application/pdf")}
+        r = c.post("/summarize", files=files, data={"length": "detailed", "group": "true"})
+        assert r.status_code == 500
+        assert r.json()["error"] == "internal"
+    finally:
+        _app.dependency_overrides.clear()
+
+
 @pytest.mark.slow
 def test_summarize_with_real_models(sample_pdf_bytes):
     # No overrides → real transformers + sentence-transformers (downloads on first run).

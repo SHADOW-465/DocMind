@@ -25,17 +25,22 @@ def rank(sentences: list[Sentence], top_n: int) -> list[RankedSentence]:
         return [RankedSentence(sentence=sentences[0], confidence=1.0)]
 
     texts = [s.text for s in sentences]
-    vec = TfidfVectorizer(stop_words="english", min_df=1)
-    tfidf = vec.fit_transform(texts)
-    sim = cosine_similarity(tfidf)
-
-    g = nx.from_numpy_array(sim)
     try:
-        pr = nx.pagerank(g, max_iter=200)
-    except nx.PowerIterationFailedConvergence:
-        pr = {i: float(sim[i].sum()) for i in range(len(sentences))}
-
-    scores = [pr.get(i, 0.0) for i in range(len(sentences))]
+        vec = TfidfVectorizer(stop_words="english", min_df=1)
+        tfidf = vec.fit_transform(texts)
+        sim = cosine_similarity(tfidf)
+        g = nx.from_numpy_array(sim)
+        try:
+            pr = nx.pagerank(g, max_iter=200)
+        except nx.PowerIterationFailedConvergence:
+            pr = {i: float(sim[i].sum()) for i in range(len(sentences))}
+        scores = [pr.get(i, 0.0) for i in range(len(sentences))]
+    except ValueError:
+        # Degenerate corpus (e.g. every sentence is only stopwords): no usable
+        # TF-IDF vocabulary. Fall back to a position prior so we still return
+        # real anchors instead of raising (PRD §11: degrade, don't crash).
+        n = len(sentences)
+        scores = [float(n - i) for i in range(n)]
     lo, hi = min(scores), max(scores)
     rng = (hi - lo) or 1.0
     norm = [(s - lo) / rng for s in scores]
