@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+# Models / caches (downloaded at runtime)
+ml/.hf_cache/
+# Env
+.env
+.env.local
+# OS
+.DS_Store
+Thumbs.db
