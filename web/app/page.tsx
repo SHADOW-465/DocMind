@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { UploadZone } from "@/components/UploadZone";
+import { PdfCanvas } from "@/components/PdfCanvas";
+import { SummaryPanel } from "@/components/SummaryPanel";
 import { summarize } from "@/lib/api";
 import type { SummarizeResponse, SummaryLength } from "@/lib/types";
 
@@ -9,7 +11,11 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [length] = useState<SummaryLength>("medium");
+
+  const cardRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const highlightRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   async function run(f: File) {
     setFile(f); setLoading(true); setError(null);
@@ -18,13 +24,26 @@ export default function Home() {
     finally { setLoading(false); }
   }
 
+  if (!result) {
+    return (
+      <main className="min-h-screen p-8 max-w-2xl mx-auto">
+        <h1 className="text-2xl font-semibold mb-6">Lucent</h1>
+        {loading ? <p className="text-[var(--muted)]">Summarizing {file?.name}…</p>
+          : <UploadZone onFile={run} disabled={loading} />}
+        {error && <p className="text-red-600 mt-4">{error}</p>}
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen p-8">
-      <h1 className="text-2xl font-semibold mb-6">Lucent</h1>
-      {!result && !loading && <UploadZone onFile={run} disabled={loading} />}
-      {loading && <p className="text-[var(--muted)]">Summarizing {file?.name}…</p>}
-      {error && <p className="text-red-600">{error}</p>}
-      {result && <pre className="text-xs overflow-auto">{JSON.stringify(result.points.map(p => p.text), null, 2)}</pre>}
+    <main className="h-screen grid grid-cols-[60%_40%]">
+      {file && (
+        <PdfCanvas
+          file={file} pages={result.pages} points={result.points} activeId={activeId}
+          registerHighlight={(id, el) => { if (el) highlightRefs.current.set(id, el); else highlightRefs.current.delete(id); }}
+        />
+      )}
+      <SummaryPanel points={result.points} activeId={activeId} onActivate={setActiveId} cardRefs={cardRefs} />
     </main>
   );
 }
