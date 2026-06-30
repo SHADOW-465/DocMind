@@ -43,7 +43,7 @@ def get_embedder():
 
 @app.get("/healthz")
 def healthz():
-    return {"status": "ok", "modelsLoaded": _MODELS_READY}
+    return {"status": "ok", "modelsLoaded": _MODELS_READY, "rewordProvider": settings.REWORD_PROVIDER}
 
 
 @app.post("/summarize")

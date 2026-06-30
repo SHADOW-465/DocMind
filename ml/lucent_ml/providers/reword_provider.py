@@ -28,7 +28,9 @@ class TransformersProvider:
 
 
 def default_provider() -> RewordProvider:
-    if settings.REWORD_PROVIDER == "transformers":
-        return TransformersProvider()
-    # Future: ollama / openai-compatible. For now, transformers is the only built-in.
+    if settings.REWORD_PROVIDER in ("api", "nim", "groq", "openai-compatible"):
+        # Hosted LLMs (NVIDIA NIM primary, Groq fallback) — no local model load.
+        from .api_provider import default_api_provider
+        return default_api_provider()
+    # Default: local transformers summarizer.
     return TransformersProvider()
