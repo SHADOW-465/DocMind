@@ -61,15 +61,20 @@ export default function Home() {
     return (
       <main className="min-h-screen p-8 max-w-2xl mx-auto">
         <h1 className="text-2xl font-semibold mb-6">Lucent</h1>
-        {health === "down" ? (
-          <p className="text-red-600">Summarization service unavailable. Start the ML service (uvicorn on :8000) and reload.</p>
-        ) : loading ? (
-          <p className="text-[var(--muted)]">Summarizing {file?.name}…</p>
-        ) : health === "checking" ? (
-          <p className="text-[var(--muted)]">Checking service…</p>
-        ) : (
-          <UploadZone onFile={run} disabled={loading} />
+        {health === "checking" && (
+          <p className="text-sm text-[var(--muted)] mb-3">Checking summarization service…</p>
         )}
+        {health === "down" && (
+          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            Summarization service offline — you can still explore the interface, but uploads will
+            fail until the ML backend is reachable. Start it locally with{" "}
+            <code className="font-mono">uvicorn lucent_ml.app:app --port 8000</code>, or set{" "}
+            <code className="font-mono">NEXT_PUBLIC_ML_URL</code> to a hosted backend, then reload.
+          </div>
+        )}
+        {loading
+          ? <p className="text-[var(--muted)]">Summarizing {file?.name}…</p>
+          : <UploadZone onFile={run} disabled={loading} />}
         {error && <p className="text-red-600 mt-4">{error}</p>}
       </main>
     );

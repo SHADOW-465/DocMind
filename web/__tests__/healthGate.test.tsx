@@ -11,15 +11,18 @@ import { checkHealth } from "@/lib/api";
 beforeEach(() => vi.clearAllMocks());
 
 describe("health gating", () => {
-  it("shows service-unavailable when health is down", async () => {
+  it("shows an offline notice but still renders the upload zone when health is down", async () => {
     (checkHealth as ReturnType<typeof vi.fn>).mockResolvedValue(false);
     render(<Home />);
-    await waitFor(() => expect(screen.getByText(/unavailable/i)).toBeInTheDocument());
+    // non-blocking: the offline banner appears AND the upload zone stays usable
+    await waitFor(() => expect(screen.getByText(/offline/i)).toBeInTheDocument());
+    expect(screen.getByText(/Drop a PDF here/i)).toBeInTheDocument();
   });
 
-  it("enables the upload zone when health is ok", async () => {
+  it("shows the upload zone (no offline banner) when health is ok", async () => {
     (checkHealth as ReturnType<typeof vi.fn>).mockResolvedValue(true);
     render(<Home />);
     await waitFor(() => expect(screen.getByText(/Drop a PDF here/i)).toBeInTheDocument());
+    expect(screen.queryByText(/offline/i)).toBeNull();
   });
 });
