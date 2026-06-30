@@ -17,7 +17,7 @@ from .pipeline.group import default_embedder
 
 app = FastAPI(title="Lucent ML", version="0.1.0")
 app.add_middleware(
-    CORSMiddleware, allow_origins=["http://localhost:3000"],
+    CORSMiddleware, allow_origins=settings.CORS_ORIGINS,
     allow_methods=["*"], allow_headers=["*"],
 )
 

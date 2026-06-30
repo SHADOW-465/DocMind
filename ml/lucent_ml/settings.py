@@ -32,5 +32,14 @@ class Settings:
     GROQ_MODEL: str = os.environ.get("LUCENT_GROQ_MODEL", "llama-3.1-8b-instant")
     API_TIMEOUT_S: float = float(os.environ.get("LUCENT_API_TIMEOUT_S", "30"))
 
+    # CORS: comma-separated origins allowed to call this service. Default is the
+    # local web dev server. Set to your deployed frontend's URL (or "*" for open
+    # testing) so a hosted frontend can reach a hosted backend.
+    CORS_ORIGINS: list[str] = [
+        o.strip()
+        for o in os.environ.get("LUCENT_CORS_ORIGINS", "http://localhost:3000").split(",")
+        if o.strip()
+    ]
+
 
 settings = Settings()
