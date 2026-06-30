@@ -1,12 +1,18 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { UploadZone } from "@/components/UploadZone";
-import { PdfCanvas } from "@/components/PdfCanvas";
 import { SummaryPanel } from "@/components/SummaryPanel";
 import { BeamOverlay } from "@/components/BeamOverlay";
 import { useActiveEls } from "@/lib/useBeams";
 import { summarize, checkHealth } from "@/lib/api";
 import type { SummarizeResponse, SummaryLength } from "@/lib/types";
+
+// react-pdf (pdf.js) touches browser-only APIs (DOMMatrix) at module load, so it
+// must not be evaluated during server prerender. Load it client-side only.
+const PdfCanvas = dynamic(() => import("@/components/PdfCanvas").then((m) => m.PdfCanvas), {
+  ssr: false,
+});
 
 export default function Home() {
   const [result, setResult] = useState<SummarizeResponse | null>(null);
