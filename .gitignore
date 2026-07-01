@@ -20,3 +20,5 @@ ml/.hf_cache/
 # OS
 .DS_Store
 Thumbs.db
+# Superpowers brainstorming companion (local mockups, not project artifacts)
+.superpowers/
