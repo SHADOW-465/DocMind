@@ -4,7 +4,13 @@
  * Words are reconstructed into a single string per page (so a sentence never
  * spans two pages), segmented with the browser's built-in `Intl.Segmenter`,
  * and each sentence's character span is mapped back to the words it covers so
- * every sentence keeps real geometry. */
+ * every sentence keeps real geometry.
+ *
+ * Note: unlike the Python path's `syntok` segmenter, `Intl.Segmenter` is not
+ * abbreviation-aware (e.g. it treats "Dr." as sentence-final) -- segmentation
+ * quality may differ slightly from the ML pipeline on titles/abbreviations.
+ * This doesn't threaten citation integrity (every emitted sentence still
+ * carries real geometry), only how sentences are split. */
 import type { ExtractedWord, Sentence } from "./types";
 
 interface WordSpan {
