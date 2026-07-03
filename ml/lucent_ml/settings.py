@@ -26,10 +26,10 @@ class Settings:
     # Keys are read from env only — never hard-code them.
     NVIDIA_API_KEY: str = os.environ.get("NVIDIA_API_KEY", "")
     NIM_BASE_URL: str = os.environ.get("LUCENT_NIM_BASE_URL", "https://integrate.api.nvidia.com/v1")
-    NIM_MODEL: str = os.environ.get("LUCENT_NIM_MODEL", "meta/llama-3.1-8b-instruct")
+    NIM_MODEL: str = os.environ.get("LUCENT_NIM_MODEL", "meta/llama-3.3-70b-instruct")
     GROQ_API_KEY: str = os.environ.get("GROQ_API_KEY", "")
     GROQ_BASE_URL: str = os.environ.get("LUCENT_GROQ_BASE_URL", "https://api.groq.com/openai/v1")
-    GROQ_MODEL: str = os.environ.get("LUCENT_GROQ_MODEL", "llama-3.1-8b-instant")
+    GROQ_MODEL: str = os.environ.get("LUCENT_GROQ_MODEL", "llama-3.3-70b-versatile")
     API_TIMEOUT_S: float = float(os.environ.get("LUCENT_API_TIMEOUT_S", "30"))
 
     # CORS: comma-separated origins allowed to call this service. Default is the
