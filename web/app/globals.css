@@ -1,4 +1,167 @@
 @import "tailwindcss";
 
-:root { --surface: #fafafa; --card: #ffffff; --ink: #1a1a1a; --muted: #6b7280; --accent: #4f46e5; }
-body { background: var(--surface); color: var(--ink); }
+/* ── Token system ────────────────────────────────────────────────────────────
+   Structural tokens (radius, spacing, type, shadow *shape*) are shared; only
+   color / glow / gradient stops swap between themes. See
+   docs/superpowers/specs/2026-07-01-lucent-ui-redesign-design.md §3. */
+
+:root {
+  --radius: 18px;
+  --radius-sm: 10px;
+  --rail: 56px;
+  --font-ui: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Light — "Vibrant Gradient" (default values; dark overrides below) */
+  --surface: #f7f7fb;
+  --surface-2: #eeeef6;
+  --card: #ffffff;
+  --border: #e3e3ee;
+  --ink: #15151e;
+  --muted: #7a7a8c;
+  --accent: #8b5cf6;
+  --accent-2: #ec4899;
+  --accent-soft: rgba(139, 92, 246, 0.12);
+  --grad: linear-gradient(120deg, #8b5cf6, #ec4899);
+  --grad-2: linear-gradient(120deg, #6366f1, #06b6d4);
+  --shadow: 0 1px 2px rgba(21, 21, 30, 0.04), 0 8px 24px rgba(139, 92, 246, 0.1);
+  --shadow-lift: 0 2px 4px rgba(21, 21, 30, 0.05), 0 14px 36px rgba(139, 92, 246, 0.18);
+  --glow: none;
+  --highlight: rgba(139, 92, 246, 0.28);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  /* Dark — "Forensic Dark" */
+  --surface: #0b0d12;
+  --surface-2: #101319;
+  --card: #14171f;
+  --border: #232838;
+  --ink: #e8e9ed;
+  --muted: #8a93a6;
+  --accent: #7c5cff;
+  --accent-2: #22d3ee;
+  --accent-soft: rgba(124, 92, 255, 0.16);
+  --grad: linear-gradient(120deg, #7c5cff, #22d3ee);
+  --grad-2: linear-gradient(120deg, #7c5cff, #22d3ee);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.6), 0 16px 40px rgba(124, 92, 255, 0.22);
+  --glow: drop-shadow(0 0 6px rgba(124, 92, 255, 0.65));
+  --highlight: rgba(124, 92, 255, 0.35);
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  /* theme cross-fade (§5) */
+  transition: background-color 200ms ease, color 200ms ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shared primitives ─────────────────────────────────────────────────────── */
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.lift {
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+.grad-text {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grad-border {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    var(--grad) border-box;
+}
+
+:where(button, a, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbars — quiet, theme-aware */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* Beam draw-in (§5) */
+@keyframes beam-draw {
+  from {
+    stroke-dashoffset: var(--beam-len, 1200);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.beam-path {
+  animation: beam-draw 220ms ease-out both;
+  filter: var(--glow);
+}
+
+/* Confidence bar fill-in */
+@keyframes bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+.bar-fill {
+  transform-origin: left;
+  animation: bar-fill 400ms ease-out both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.fade-up {
+  animation: fade-up 260ms ease-out both;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .lift:hover {
+    transform: none;
+  }
+}

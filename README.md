@@ -3,6 +3,22 @@
 Verifiable PDF summarization — every summary point links by a bezier beam to the
 exact region of the source PDF it came from.
 
+## The app
+
+- **Home** — dropzone + a grid of recent documents, with a summary-length preset
+  (short / medium / detailed).
+- **Workspace** — PDF canvas (zoom, page nav, clickable source highlights) beside
+  the themed summary panel. Click a point (or its highlight) and a gradient beam
+  draws between the two; `↑`/`↓` or `j`/`k` walk the points, `Esc` clears.
+- **Export** — `Copy Markdown` yields points with `p. N` citations and the
+  verbatim anchor sentence under each; `JSON` downloads the raw response.
+- **Library** — recent documents live in IndexedDB *in this browser only* (PDF
+  blob + response, capped at 12, oldest evicted). Re-opening one costs no upload
+  and no second `/summarize` call. Nothing is persisted server-side.
+- **Themes** — light ("vibrant gradient") and dark ("forensic dark") off one
+  token set; follows `prefers-color-scheme` on first visit, then `localStorage`.
+  Every animation has a `prefers-reduced-motion` fallback.
+
 ## Dev (two processes)
 
 ML service:

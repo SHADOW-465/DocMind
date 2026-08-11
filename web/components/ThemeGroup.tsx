@@ -15,13 +15,25 @@ export function ThemeGroup({ theme, points, activeId, onActivate, cardRefs }: Pr
   if (themePoints.length === 0) return null;
   return (
     <section className="mb-6">
-      <header className="flex items-center gap-2 mb-2 px-1">
-        <h2 className="text-sm font-semibold text-[var(--ink)]">{theme.label}</h2>
-        <span className="text-xs text-[var(--muted)] bg-gray-100 rounded-full px-2 py-0.5">{themePoints.length}</span>
+      <header className="mb-2 flex items-center gap-2 px-1">
+        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: "var(--grad)" }} aria-hidden />
+        <h2 className="text-sm font-semibold">{theme.label}</h2>
+        <span className="mono rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[11px] text-[var(--muted)]">
+          {themePoints.length}
+        </span>
       </header>
       {themePoints.map((p) => (
-        <SummaryCard key={p.id} point={p} active={activeId === p.id} onActivate={onActivate}
-          ref={(el) => { if (el) cardRefs.current.set(p.id, el); else cardRefs.current.delete(p.id); }} />
+        <SummaryCard
+          key={p.id}
+          point={p}
+          active={activeId === p.id}
+          dimmed={activeId !== null && activeId !== p.id}
+          onActivate={onActivate}
+          ref={(el) => {
+            if (el) cardRefs.current.set(p.id, el);
+            else cardRefs.current.delete(p.id);
+          }}
+        />
       ))}
     </section>
   );
